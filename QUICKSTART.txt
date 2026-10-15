@@ -1,0 +1,55 @@
+Home Clearout Print Helper v0.2.0 - Windows x64
+
+1. Extract the ZIP to a folder. Open HomeClearout.PrintHelper.exe.
+   No installer, administrator privileges, Visual Studio or separate .NET runtime
+   is needed. Keep this file and the third-party notice for reference.
+2. Select an installed Windows printer. Install the manufacturer's driver first
+   if needed, then click Refresh printers.
+3. For your first Brother laser test, select Letter sheet (8.5 x 11 inches).
+   Select a label size; 2 x 1.5 inches is the default. The rest of the sheet is blank.
+4. Check the ID, description and test URL. The default https://example.com/ is an
+   intentional placeholder, NOT a production Home Clearout item URL.
+5. Check the preview and click Print Test Label once. Windows accepting the job
+   does not prove paper output. Check the queue if nothing appears before retrying.
+6. Measure the label and scan its QR with your phone. Confirm physical output only
+   after checking it. Put real labels on bags/tags/packaging, not merchandise.
+
+Microsoft Print to PDF prompts for a file, useful before a paper test. A preview
+uses Windows display DPI; screen calibration varies. Printed geometry is actual
+size. Disable driver Fit/Scale options; use matching paper size and 100% scaling.
+
+For thermal labels choose Label roll and matching media in the Windows driver.
+Driver support for custom paper sizes and printable margins must be tested on the
+actual printer. A clipping error means the driver cannot fit the selected layout;
+adjust the driver/media or use Letter mode to test first.
+
+Settings are saved on Print, Save settings and normal exit:
+%LOCALAPPDATA%\HomeClearout\PrintHelper\settings.json
+Settings stay local to each Windows user/computer. Copying the EXE does not move
+the preferred printer; select the installed printer on the second computer.
+
+This unsigned prototype may trigger Windows reputation/security prompts. Do not
+disable Windows protections. Verify the download source and SHA256SUMS.txt; ask
+for help if Windows blocks it. Code signing is not included in v0.2.
+
+Windows 11 is the tested development environment. Windows 10 x64 / Surface Pro 4
+is a compatibility target requiring a device test. Standard Windows 10 support
+ended October 14, 2025; keep the OS on applicable Microsoft security support.
+
+CONNECTED PRINTING (web app and migrations 0005-0008 must be deployed first)
+1. In the signed-in app: Labels > Connect / manage printing computers.
+2. Name this computer, create a code, and select Use this computer.
+3. In this helper: select/test/save the physical printer and paper mode.
+4. Open Connected printing, paste the secret code, Save connection, Enable processing.
+5. On your phone: open an item's labels and select Send to Windows helper.
+6. Check paper/QR; confirm checked output on the app's Labels page.
+
+Keep Connected printing open; closing it pauses processing. Restart always starts
+paused. Only the designated computer processes jobs. File printers are manual only.
+Existing browser jobs never print automatically. Print-only secrets are protected
+by Windows DPAPI for this user/computer; do not share connection codes.
+
+If interrupted, check the Windows queue and paper. Resolve Submitted/Uncertain
+attempts on the app's Labels page before requesting another copy. A stale active
+attempt can be resolved after two minutes. Never blindly resend a possibly printed
+job. Reset local connection only after reconciliation; revoke old codes in the app.
