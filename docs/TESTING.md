@@ -5,8 +5,8 @@ Brother/thermal printer is installed here; no physical print jobs were sent.
 
 ## Automated and local checks
 
-- **22 tests passed** locally with Microsoft Print to PDF enabled. The regular
-  Windows CI suite has 21 tests; the optional real PDF-driver test is the 22nd.
+- **24 tests passed** locally with Microsoft Print to PDF enabled. The regular
+  Windows CI suite has 23 tests; the optional real PDF-driver test is the 24th.
 - Real QRCoder generation independently decoded by ZXing.Net at all three sizes,
   both 300 dpi and typical 203 dpi thermal resolution. A configurable alternate
   test URL decodes exactly as entered.

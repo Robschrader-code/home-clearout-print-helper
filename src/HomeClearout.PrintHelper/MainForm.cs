@@ -113,6 +113,7 @@ public sealed class MainForm : Form
     private async Task PrintLabel()
     {
         if (busy || previewError is not null) return;
+        bool submitted = false;
         try
         {
             var selected = printer.SelectedItem as string ?? "";
@@ -134,10 +135,10 @@ public sealed class MainForm : Form
             var worker = new Thread(() => { try { printers.Print(selected, label, mode, output); completed.SetResult(); } catch (Exception e) { completed.SetException(e); } }) { IsBackground = true };
             worker.SetApartmentState(ApartmentState.STA); worker.Start(); await completed.Task;
             SetStatus("Windows accepted the print job. Physical printing is NOT confirmed. Check the paper/PDF and scan the QR; check the Windows queue if nothing appears.");
-            check.Enabled = true;
+            submitted = true;
         }
         catch (Exception e) { SetStatus("Printing could not be confirmed: " + e.Message + " Check the Windows print queue before retrying to avoid duplicate output.", true); }
-        finally { busy = false; UseWaitCursor = false; print.Enabled = previewError is null; editors.ForEach(c => c.Enabled = true); }
+        finally { busy = false; UseWaitCursor = false; print.Enabled = previewError is null; editors.ForEach(c => c.Enabled = true); check.Enabled = submitted; }
     }
     protected override void Dispose(bool disposing)
     {

@@ -68,6 +68,25 @@ internal static class Program
         {
             var store = new SettingsStore(Path.Combine(artifacts, "missing-printer")); store.Save(new() { PrinterName = "Disconnected Brother" }); using var form = new MainForm(new FakePrinters(), store); var combo = All(form).OfType<ComboBox>().Single(c => c.AccessibleName == "Printer"); Equal(combo.SelectedItem as string, "Disconnected Brother"); Assert(All(form).Any(c => c.AccessibleName == "Status" && c.Text.Contains("unavailable")), "Clear warning");
         });
+        Test("Print button submits once and never assumes physical output", () =>
+        {
+            var service = new AcceptingPrinters(); using var form = new MainForm(service, new SettingsStore(Path.Combine(artifacts, "ui-print")));
+            form.ShowInTaskbar = false; form.StartPosition = FormStartPosition.Manual; form.Location = new(-30000, -30000); form.Show(); Application.DoEvents();
+            var print = All(form).OfType<Button>().Single(c => c.AccessibleName == "Print Test Label");
+            SynchronizationContext.SetSynchronizationContext(new WindowsFormsSynchronizationContext());
+            var confirmation = All(form).OfType<Button>().Single(c => c.Text == "I checked the physical output");
+            var status = All(form).Single(c => c.AccessibleName == "Status"); print.PerformClick(); print.PerformClick();
+            var timer = System.Diagnostics.Stopwatch.StartNew(); while ((!status.Text.Contains("Windows accepted") || !confirmation.Enabled) && timer.Elapsed < TimeSpan.FromSeconds(5)) { Application.DoEvents(); Thread.Sleep(10); }
+            Equal(service.Calls, 1); Assert(status.Text.Contains("Physical printing is NOT confirmed"), "No automatic physical success");
+            Assert(All(form).OfType<Button>().Single(c => c.Text == "I checked the physical output").Enabled, "Explicit confirmation offered"); form.Close();
+        });
+        Test("Missing printer print action sends no job and explains recovery", () =>
+        {
+            var store = new SettingsStore(Path.Combine(artifacts, "ui-print-unavailable")); store.Save(new() { PrinterName = "Missing printer" }); var service = new AcceptingPrinters(); using var form = new MainForm(service, store);
+            form.ShowInTaskbar = false; form.StartPosition = FormStartPosition.Manual; form.Location = new(-30000, -30000); form.Show(); Application.DoEvents();
+            All(form).OfType<Button>().Single(c => c.AccessibleName == "Print Test Label").PerformClick(); Application.DoEvents(); Equal(service.Calls, 0);
+            Assert(All(form).Single(c => c.AccessibleName == "Status").Text.Contains("not installed or is unavailable"), "Clear printer error"); form.Close();
+        });
         if (args.Contains("--print-pdf"))
         {
             Test("Actual Windows driver Letter output", () =>
@@ -96,4 +115,5 @@ internal static class Program
     private static void Equal<T>(T actual, T expected) { if (!EqualityComparer<T>.Default.Equals(actual, expected)) throw new Exception($"Expected {expected}; got {actual}"); }
     private static void Throws(Action run) { try { run(); } catch { return; } throw new Exception("Expected rejection"); }
     private sealed class FakePrinters : IPrinterService { public string DefaultPrinter => "Test laser"; public string[] InstalledPrinters() => ["Test laser"]; public void Print(string printer, LabelSpec label, PaperMode mode, string? outputFile = null) => throw new NotSupportedException("Tests never send physical jobs"); }
+    private sealed class AcceptingPrinters : IPrinterService { public int Calls; public string DefaultPrinter => "Test laser"; public string[] InstalledPrinters() => ["Test laser"]; public void Print(string printer, LabelSpec label, PaperMode mode, string? outputFile = null) { Interlocked.Increment(ref Calls); Thread.Sleep(100); } }
 }
