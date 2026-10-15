@@ -1,0 +1,1 @@
+# Home Clearout Print Helper
