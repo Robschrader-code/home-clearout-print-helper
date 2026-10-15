@@ -1,0 +1,47 @@
+name: Build Windows Print Helper
+on:
+  push:
+    branches: [main, 'codex/**']
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  windows:
+    runs-on: windows-2025
+    timeout-minutes: 20
+    env:
+      DOTNET_CLI_TELEMETRY_OPTOUT: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.402'
+      - name: Restore locked dependencies
+        run: dotnet restore tests/HomeClearout.PrintHelper.Tests --locked-mode
+      - name: Build
+        run: dotnet build tests/HomeClearout.PrintHelper.Tests -c Release --no-restore
+      - name: Test rendering, QR, layout, settings and printer validation
+        run: dotnet run --project tests/HomeClearout.PrintHelper.Tests -c Release --no-build -- artifacts/test-results
+      - name: Publish and package portable Windows x64 application
+        shell: pwsh
+        run: ./scripts/publish.ps1
+      - name: Verify self-contained executable startup
+        shell: pwsh
+        run: ./scripts/smoke-portable.ps1
+      - name: Upload portable application
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: HomeClearout-PrintHelper-v0.1.0-win-x64
+          path: artifacts/HomeClearout-PrintHelper-v0.1.0-win-x64.zip
+          if-no-files-found: error
+          retention-days: 30
+      - name: Upload test results and previews
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: print-helper-test-results
+          path: artifacts/test-results/
+          if-no-files-found: warn
