@@ -7,6 +7,6 @@ Copy-Item -LiteralPath (Join-Path $PSScriptRoot '../QUICKSTART.txt'),(Join-Path 
 $exe = Join-Path $OutputDirectory 'HomeClearout.PrintHelper.exe'
 $hash = (Get-FileHash -LiteralPath $exe -Algorithm SHA256).Hash.ToLowerInvariant()
 "$hash  HomeClearout.PrintHelper.exe" | Set-Content -LiteralPath (Join-Path $OutputDirectory 'SHA256SUMS.txt') -Encoding ascii
-$zip = Join-Path (Split-Path $OutputDirectory -Parent) 'HomeClearout-PrintHelper-v0.1.0-win-x64.zip'
+$zip = Join-Path (Split-Path $OutputDirectory -Parent) 'HomeClearout-PrintHelper-v0.2.0-win-x64.zip'
 Compress-Archive -Path (Join-Path $OutputDirectory '*') -DestinationPath $zip -Force
 Write-Output $zip

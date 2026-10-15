@@ -22,7 +22,7 @@ public sealed class MainForm : Form
     public MainForm(IPrinterService printers, SettingsStore store)
     {
         this.printers = printers; this.store = store;
-        Text = "Home Clearout Print Helper · v0.1";
+        Text = "Home Clearout Print Helper · v0.2";
         Font = new Font("Segoe UI", 10);
         AutoScaleDimensions = new SizeF(96, 96); AutoScaleMode = AutoScaleMode.Dpi;
         ClientSize = new(1000, 740); MinimumSize = new(840, 650);
@@ -52,7 +52,10 @@ public sealed class MainForm : Form
         var save = new Button { Text = "Save settings", AutoSize = true, Padding = new(6, 8, 6, 8) };
         save.Click += (_, _) => { if (SaveSettings()) SetStatus("Settings saved on this computer."); };
         check.Click += (_, _) => { SetStatus("You confirmed the physical output. You can print another test or close the helper."); check.Enabled = false; };
-        commands.Controls.AddRange([print, save, check]); root.Controls.Add(commands, 0, 2); root.Controls.Add(status, 0, 3); Controls.Add(root);
+        var connected = new Button { Text = "Connected printing", AutoSize = true, Padding = new(6, 8, 6, 8) };
+        connected.Click += (_, _) => { if (!SaveSettings()) return; using var form = new ConnectedForm(printers, store.Load(out _), Path.GetDirectoryName(store.FilePath)!); form.ShowDialog(this); };
+        commands.WrapContents = true;
+        commands.Controls.AddRange([print, save, check, connected]); root.Controls.Add(commands, 0, 2); root.Controls.Add(status, 0, 3); Controls.Add(root);
         editors.AddRange([body, save]);
         size.Items.AddRange(LabelSize.Presets); paper.Items.AddRange(["Letter sheet · 8.5 × 11 inches", "Label roll · selected label size"]);
         var settings = store.Load(out var warning);

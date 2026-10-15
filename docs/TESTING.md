@@ -53,3 +53,18 @@ software-only tests. Do not disable security protections to test it.
 
 ![Application preview with synthetic printer](application.png)
 ![Default test label](label-default.png)
+
+
+## v0.2 connected queue verification
+
+The user confirmed v0.1 printing works on both computers. v0.2 adds tests for
+DPAPI-protected credential round trips, HTTPS/public-key validation, wire-format
+RPC requests, real item UUID links, readable description abbreviation, durable
+claim/spool markers, acknowledgment loss, process restart, uncertain output and
+preflight/revocation fence failures. No household records or physical printer are
+used by those tests. The Letter/PDF driver test remains optional locally.
+
+After deploying the web app and migrations, pair both computers, designate only
+one, send a single label from a phone, check paper/QR and explicitly confirm it.
+Test switching designation, revocation, interrupted output reconciliation and a
+reprint before sending batches. Closing/restarting the helper must start paused.

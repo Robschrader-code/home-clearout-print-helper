@@ -16,6 +16,7 @@ internal static class Program
         if (args.Length == 2 && args[0] == "--decode-image") { using var image = new Bitmap(args[1]); Console.WriteLine(Decode(image)); return 0; }
         artifacts = Path.GetFullPath(args.FirstOrDefault(a => !a.StartsWith("--")) ?? "artifacts/test-results");
         Directory.CreateDirectory(artifacts);
+        Test("Connected queue safety, DPAPI and recovery", () => ConnectedTests.Run(Path.Combine(artifacts, "connected")));
         foreach (var size in LabelSize.Presets)
         {
             Test($"Dimensions and rendering {size.Name}", () =>
